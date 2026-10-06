@@ -45,7 +45,7 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2022_64
-          modules: 'qt5compat qtwebsockets qtshadertools qttools'
+          modules: 'qt5compat qtwebsockets qtshadertools'
           cache: true
 
       - name: Install NSIS
