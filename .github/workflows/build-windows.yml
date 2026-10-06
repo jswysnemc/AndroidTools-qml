@@ -1,0 +1,97 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 'cursor/**'
+
+permissions:
+  contents: write
+
+env:
+  BUILD_TYPE: Release
+  QT_VERSION: 6.9.3
+
+jobs:
+  windows:
+    name: Windows installer
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          vsversion: "2022"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          modules: 'qt5compat qtwebsockets qtshadertools qttools'
+          cache: true
+
+      - name: Install NSIS
+        run: choco install nsis --no-progress -y
+
+      - name: Set package version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $version = "${{ github.ref_name }}" -replace '^v', ''
+          } else {
+            $version = "0.1.0-dev.${{ github.run_number }}"
+          }
+          "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+
+      - name: Package
+        shell: pwsh
+        run: |
+          ./packaging/windows/package.ps1 `
+            -SourceDir "${{ github.workspace }}" `
+            -BuildDir "${{ github.workspace }}/build" `
+            -Version "$env:PACKAGE_VERSION" `
+            -OutputDir "${{ github.workspace }}/dist"
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-tools-windows
+          if-no-files-found: error
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+      - name: Publish Windows prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: windows-preview
+          target_commitish: ${{ github.sha }}
+          name: Windows preview
+          prerelease: true
+          make_latest: false
+          overwrite_files: true
+          body: |
+            Windows installer and portable zip for AndroidTools.
+
+            Built from commit ${{ github.sha }} by the Build Windows workflow.
+            The package includes the Release build, Qt runtime libraries from windeployqt, the FluentUI QML plugin, FFmpeg libraries used by the mirroring stack, and Android platform-tools (adb, fastboot).
+          files: |
+            dist/AndroidTools-windows-x64-setup.exe
+            dist/AndroidTools-windows-x64.zip

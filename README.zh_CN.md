@@ -85,6 +85,11 @@ git submodule update --init --recursive
 
 从 [GitHub Releases](https://github.com/mhduiy/AndroidTools-qml/releases) 下载最新的 Linux `.deb` 或 macOS `.dmg`。推送 `v*` 标签后，GitHub Actions 会自动构建并发布两个平台的安装包。
 
+Windows 安装包由 [Build Windows](https://github.com/jswysnemc/AndroidTools-qml/actions/workflows/build-windows.yml) 工作流生成（`workflow_dispatch`，以及推送到 `main` 或 `cursor/**`）。构建成功后上传 NSIS 安装程序和便携压缩包，并附加到 [windows-preview](https://github.com/jswysnemc/AndroidTools-qml/releases/tag/windows-preview) 预发布：
+
+- [AndroidTools-windows-x64-setup.exe](https://github.com/jswysnemc/AndroidTools-qml/releases/download/windows-preview/AndroidTools-windows-x64-setup.exe)
+- [AndroidTools-windows-x64.zip](https://github.com/jswysnemc/AndroidTools-qml/releases/download/windows-preview/AndroidTools-windows-x64.zip)
+
 ## 使用
 
 1. 安装 Android Platform Tools，确保 `adb` 和 `fastboot` 在 `PATH` 中。
