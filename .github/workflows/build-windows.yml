@@ -29,7 +29,14 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-          vsversion: "2022"
+          toolset: "14.44"
+
+      - name: Show MSVC toolsets
+        shell: pwsh
+        run: |
+          vswhere -latest -products * -property installationPath
+          Get-ChildItem "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC" |
+            Select-Object -ExpandProperty Name
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -54,8 +61,11 @@ jobs:
           }
           "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
+      # windows-latest ships Visual Studio 2026. Qt 6.9.3 binaries and the bundled
+      # FFmpeg import libraries are built with MSVC 14.44 (v143), which this image
+      # still installs side by side.
       - name: Configure
-        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -T version=14.44
 
       - name: Build
         run: cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
