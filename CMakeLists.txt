@@ -106,11 +106,12 @@ if(UNIX AND NOT APPLE)
 endif()
 include(CPack)
 
-# QtScrcpyCore 把语言标准设成 C++11，MSVC 无法编译 Qt 6 头文件。源文件是 UTF-8。
-set(FEATURE_WINDOWS_MSVC_CXX17_ENABLED ON)
+# QtScrcpyCore 把语言标准设成 C++11，MSVC 无法编译 Qt 6 头文件。
+# 业务代码使用了指派初始化，MSVC 从 C++20 才接受。源文件是 UTF-8。
+set(FEATURE_WINDOWS_MSVC_CXX20_ENABLED ON)
 
-function(apply_windows_msvc_cxx17)
-    if(NOT FEATURE_WINDOWS_MSVC_CXX17_ENABLED OR NOT MSVC)
+function(apply_windows_msvc_cxx20)
+    if(NOT FEATURE_WINDOWS_MSVC_CXX20_ENABLED OR NOT MSVC)
         return()
     endif()
     foreach(tgt IN ITEMS AndroidTools QtScrcpyCore fluentuiplugin)
@@ -118,13 +119,13 @@ function(apply_windows_msvc_cxx17)
             continue()
         endif()
         set_target_properties(${tgt} PROPERTIES
-            CXX_STANDARD 17
+            CXX_STANDARD 20
             CXX_STANDARD_REQUIRED ON
         )
         target_compile_options(${tgt} PRIVATE /utf-8 /Zc:__cplusplus)
     endforeach()
 endfunction()
 
-if(FEATURE_WINDOWS_MSVC_CXX17_ENABLED)
-    apply_windows_msvc_cxx17()
+if(FEATURE_WINDOWS_MSVC_CXX20_ENABLED)
+    apply_windows_msvc_cxx20()
 endif()
