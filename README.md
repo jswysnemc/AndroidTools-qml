@@ -91,6 +91,11 @@ git submodule update --init --recursive
 
 Download the latest Linux `.deb` or macOS `.dmg` from [GitHub Releases](https://github.com/mhduiy/AndroidTools-qml/releases). Push a `v*` tag to build and publish both platforms automatically.
 
+Windows packages are built by the [Build Windows](https://github.com/jswysnemc/AndroidTools-qml/actions/workflows/build-windows.yml) workflow (`workflow_dispatch`, and pushes to `main` or `cursor/**`). A successful run uploads an NSIS installer and a portable zip, and attaches both to the [windows-preview](https://github.com/jswysnemc/AndroidTools-qml/releases/tag/windows-preview) prerelease:
+
+- [AndroidTools-windows-x64-setup.exe](https://github.com/jswysnemc/AndroidTools-qml/releases/download/windows-preview/AndroidTools-windows-x64-setup.exe)
+- [AndroidTools-windows-x64.zip](https://github.com/jswysnemc/AndroidTools-qml/releases/download/windows-preview/AndroidTools-windows-x64.zip)
+
 
 ## Usage
 
