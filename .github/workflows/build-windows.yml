@@ -61,14 +61,15 @@ jobs:
           }
           "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      # windows-latest ships Visual Studio 2026. Qt 6.9.3 binaries and the bundled
-      # FFmpeg import libraries are built with MSVC 14.44 (v143), which this image
-      # still installs side by side.
+      # windows-latest ships Visual Studio 2026. The developer prompt above
+      # selects the side-by-side MSVC 14.44 compiler, which matches the Qt 6.9.3
+      # binaries and the bundled FFmpeg import libraries. Ninja uses that cl.exe.
+      # The Visual Studio 18 generator rejects 14.44 as a v145 toolset version.
       - name: Configure
-        run: cmake -S . -B build -G "Visual Studio 18 2026" -A x64 -T version=14.44
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
       - name: Build
-        run: cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+        run: cmake --build build --parallel
 
       - name: Package
         shell: pwsh
